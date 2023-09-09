@@ -70,10 +70,7 @@
             "4": []
         },
         "error": {
-            "1": "crossP_1_0_true_true",
-            "2": "crossP_1_0_true_false",
-            "3": "crossP_1_0_false_true",
-            "4": "crossP_1_0_false_false"
+            "1": "multi_time_0.4_line_1_0_true__line_1_0_true"
         }
     }
 }
