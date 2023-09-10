@@ -3,24 +3,19 @@ from variable import *
 import customtkinter
 
 
-def colAux(y, n, old, replaceGrille):
-    for i in range(0, SIZE[1]):
-        replaceGrille(i, y, n, old)
+def squareStarter(app: customtkinter.CTkBaseClass, n, old, x, y, i, timer, replaceGrille, nbFunc):
+    if (time.time() - timer) >= (DELAY * i):
+        for j in range(x - i, x + 1 + i):
+            replaceGrille(j, y, n, old, nbFunc)
+            replaceGrille(j, y, n, old, nbFunc)
+        for j in range(y - i, y + 1 + i):
+            replaceGrille(x, j, n, old, nbFunc)
+            replaceGrille(x, j, n, old, nbFunc)
+        i += 1
+    app.after(1, squareStarter, app, n, old, x, y, i, timer, replaceGrille, nbFunc)
+    return
 
 
-def colStarter(app: customtkinter.CTkBaseClass, n, old, left, i, step, timer, replaceGrille):
-    if (time.time() - timer) >= (DELAY * (i if left else (SIZE[1] - 1 - i))):
-        if i != (SIZE[1] if left else -1):
-            if i != (0 if left else SIZE[1] - 1):
-                colAux(i - step, old, n, replaceGrille)
-            colAux(i, n, old, replaceGrille)
-        i += step
-    if i == (SIZE[1] + 1 if left else -2):
-        colAux(SIZE[1] - 1 if left else 0, old, n, replaceGrille)
-        return
-    app.after(1, colStarter, app, n, old, left, i, step, timer, replaceGrille)
-    return DELAY * SIZE[1]
-
-
-def column(app: customtkinter.CTkBaseClass, n, old, left, replaceGrille):
-    return colStarter(app, n, old, left, 0 if left else SIZE[1] - 1, 1 if left else -1, time.time(), replaceGrille)
+def square(app: customtkinter.CTkBaseClass, n, old, x, y, replaceGrille, nbFunc, wait=0):
+    app.after(int(wait * 1000), squareStarter, app, n, old, x, y, 0, time.time(), replaceGrille, nbFunc)
+    return max(x, y, SIZE[0] - x, SIZE[1] - y) * DELAY + wait

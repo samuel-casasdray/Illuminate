@@ -3,6 +3,7 @@ import customtkinter
 from variable import *
 from Type.Line import line
 from Type.Column import column
+from Type.Square import square
 import copy
 
 
@@ -58,6 +59,17 @@ class Game:
     def startGame(self, app: customtkinter.CTkBaseClass):
         self.levelInGoing = True
         self.loop(app)
+        self.sendGrille(app)
+
+    def sendGrille(self, app: customtkinter.CTkBaseClass):
+        for i in range(0, SIZE[0]):
+            for j in range(0, SIZE[1]):
+                n = -1
+                for k in range(0, self.nbFunc):
+                    if self.grilles[k] is not None and self.grilles[k][i][j] > n:
+                        n = self.grilles[k][i][j]
+                self.func(i, j, n if n != -1 else 0)
+        app.after(1, self.sendGrille, app)
 
     def loop(self, app: customtkinter.CTkBaseClass):
         self.nbFuncDone = 0
@@ -67,8 +79,7 @@ class Game:
         error = self.level["error"][str(self.stepLevel)]
         app.after(int(self.lunchFunc(app, error) * 1000), self.loop, app)
 
-    def lunchFunc(self, app: customtkinter.CTkBaseClass, func, isMulti=False, multi=0, time=0):
-        print(func)
+    def lunchFunc(self, app: customtkinter.CTkBaseClass, func, isMulti=False, multi=0, time=0.0):
         funcs = func.split("_")
         name = funcs[0]
         try: n = int(funcs[1])
@@ -81,75 +92,76 @@ class Game:
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                return line(app, n, old, top, self.replaceGrille, self.doneReplace, 0 + multi, time)
+                return line(app, n, old, top, self.replaceGrille, 0 + multi, time)
             case "column":
                 left = funcs[3] == "true"
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                return column(app, n, old, left, self.replaceGrille, self.doneReplace, 0 + multi, time)
+                return column(app, n, old, left, self.replaceGrille, 0 + multi, time)
             case "crossP":
                 top = funcs[3] == "true"
                 left = funcs[4] == "true"
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                time1 = line(app, n, old, top, self.replaceGrille, self.doneReplace, 0 + multi, time)
-                time2 = column(app, n, old, left, self.replaceGrille, self.doneReplace, 1 + multi, time)
+                time1 = line(app, n, old, top, self.replaceGrille, 0 + multi, time)
+                time2 = column(app, n, old, left, self.replaceGrille, 1 + multi, time)
                 return max(time1, time2)
             case "multi":
-                self.setGrilles()
                 multiFuncs = "_".join(funcs[1:]).split("__")
                 self.nbFunc = sum(map(self.getNbFunc, multiFuncs))
                 self.setGrilles()
                 i = 0
-                time = 0
+                timeMin = float("inf")
+                timeMax = 0
                 for f in multiFuncs:
                     time2 = self.lunchFunc(app, f, True, i, time)
-                    if time2 > time: time = time2
+                    if time2 < timeMin: timeMin = time2
+                    if time2 > timeMax: timeMax = time2
                     i += self.getNbFunc(f)
-                return time
+                return timeMin if self.maxStep == 1 else timeMax
             case "time":
-                return self.lunchFunc(app, "_".join(funcs[2:]), isMulti, multi, n)
+                temp = self.lunchFunc(app, "_".join(funcs[2:]), isMulti, multi, float(funcs[1]))
+                return temp
+            case "square":
+                x = int(funcs[3])
+                y = int(funcs[4])
+                if not isMulti:
+                    self.nbFunc = self.getNbFunc(name)
+                    self.setGrilles()
+                return square(app, n, old, x, y, self.replaceGrille, 0 + multi, time)
+                return 5
             case _:
                 print("Erreur inconnu : ", func)
-                return 1000
+                return 5
 
     def getNbFunc(self, name):
         match name:
-            case "line":
-                return 1
-            case "column":
+            case "line" | "column" | "square":
                 return 1
             case "crossP":
                 return 2
             case _:
                 names = name.split("_")
                 if len(names) == 1: return 0
+                if names[0] == "time": return self.getNbFunc(names[2])
                 return self.getNbFunc(names[0])
 
     def setFunc(self, func):
         self.func = func
 
     def setGrilles(self):
-        self.grilles = [None for _ in range(0, self.nbFunc)]
+        if len(self.grilles) != self.nbFunc:
+            self.grilles = [None for _ in range(0, self.nbFunc)]
 
     def replaceGrille(self, x, y, n, old, i):
+        if len(self.grilles) <= i: return
         if self.grilles[i] is None:
             self.grilles[i] = copy.deepcopy(self.grille)
         if self.grilles[i][x][y] == old:
             self.grilles[i][x][y] = n
 
-    def doneReplace(self):
-        self.nbFuncDone += 1
-        if self.nbFuncDone == self.nbFunc:
-            # print("hi")
-            for i in range(0, SIZE[0]):
-                for j in range(0, SIZE[1]):
-                    n = max([self.grilles[k][i][j] for k in range(0, self.nbFunc)])
-                    self.grille[i][j] = n
-                    self.func(i, j, n)
-            self.nbFuncDone = 0
 
     def diagR(self):
         pass
