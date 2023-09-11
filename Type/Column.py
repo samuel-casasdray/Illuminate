@@ -10,8 +10,7 @@ def colAux(y, n, old, replaceGrille, nbFunc):
 
 def colStarter(app: customtkinter.CTkBaseClass, n, old, left, i, step, timer, replaceGrille, nbFunc):
     if timer is None: timer = time.time()
-    delay = DELAY * (i if left else (SIZE[1] - 1 - i))
-    if (time.time() - timer) >= delay:
+    if (time.time() - timer) >= DELAY * (i if left else (SIZE[1] - 1 - i)):
         if i != (SIZE[1] if left else -1):
             if i != (0 if left else SIZE[1] - 1):
                 colAux(i - step, old, n, replaceGrille, nbFunc)

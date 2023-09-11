@@ -11,8 +11,7 @@ def lineAux(x, n, old, replaceGrille, nbFunc):
 
 def lineStarter(app: customtkinter.CTkBaseClass, n, old, top, i, step, timer, replaceGrille, nbFunc):
     if timer is None: timer = time.time()
-    delay = DELAY * (i if top else (SIZE[0] - 1 - i))
-    if (time.time() - timer) >= delay:
+    if (time.time() - timer) >= DELAY * (i if top else (SIZE[0] - 1 - i)):
         if i != (SIZE[0] if top else -1):
             if i != (0 if top else SIZE[0] - 1):
                 lineAux(i - step, old, n, replaceGrille, nbFunc)

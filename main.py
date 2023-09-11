@@ -18,14 +18,15 @@ class Grille(customtkinter.CTkFrame):
         for i in range(0, SIZE[0]):
             row = []
             for j in range(0, SIZE[1]):
-                frame = Plate(master=self, fg_color=color[0])
+                frame = customtkinter.CTkLabel(master=self, bg_color=color[0], text="")
                 frame.configure(height=sizePlateY, width=sizePlateX)
                 row.append(frame)
                 frame.grid(row=i, column=j)
             self.plates.append(row)
 
     def changeColor(self, x, y, i):
-        self.plates[x][y].configure(fg_color=color[i])
+        print(x, y, i)
+        self.plates[x][y].configure(bg_color=color[i])
 
     def getSize(self):
         return str(self.width) + "x" + str(self.height)
@@ -48,6 +49,7 @@ class App(customtkinter.CTk):
         self.game.loadLevel('1')
         self.grille = Grille(master=self, sizePlateX=30, sizePlateY=30)
         self.geometry(self.grille.getSize())
+        self.resizable(False, False)
         self.title("Illuminate")
         self.grille.grid(row=0, column=0)
         self.grille.loadGrille(self.game.grille)

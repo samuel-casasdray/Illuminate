@@ -1,4 +1,6 @@
 import json
+import time
+
 import customtkinter
 from variable import *
 from Type.Line import line
@@ -59,9 +61,9 @@ class Game:
     def startGame(self, app: customtkinter.CTkBaseClass):
         self.levelInGoing = True
         self.loop(app)
-        self.sendGrille(app)
 
-    def sendGrille(self, app: customtkinter.CTkBaseClass):
+    def sendGrille(self, app: customtkinter.CTkBaseClass, _time, timer):
+        if time.time() - timer > _time / 1000: return
         for i in range(0, SIZE[0]):
             for j in range(0, SIZE[1]):
                 n = -1
@@ -69,7 +71,7 @@ class Game:
                     if self.grilles[k] is not None and self.grilles[k][i][j] > n:
                         n = self.grilles[k][i][j]
                 self.func(i, j, n if n != -1 else 0)
-        app.after(1, self.sendGrille, app)
+        app.after(10, self.sendGrille, app, _time, timer)
 
     def loop(self, app: customtkinter.CTkBaseClass):
         self.nbFuncDone = 0
@@ -77,7 +79,9 @@ class Game:
         if self.stepLevel > self.maxStep:
             self.stepLevel = 1
         error = self.level["error"][str(self.stepLevel)]
-        app.after(int(self.lunchFunc(app, error) * 1000), self.loop, app)
+        time1 = int(self.lunchFunc(app, error) * 1000)
+        self.sendGrille(app, time1, time.time())
+        app.after(time1, self.loop, app)
 
     def lunchFunc(self, app: customtkinter.CTkBaseClass, func, isMulti=False, multi=0, time=0.0):
         funcs = func.split("_")
@@ -127,11 +131,11 @@ class Game:
             case "square":
                 x = int(funcs[3])
                 y = int(funcs[4])
+                print(x, y)
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
                 return square(app, n, old, x, y, self.replaceGrille, 0 + multi, time)
-                return 5
             case _:
                 print("Erreur inconnu : ", func)
                 return 5
