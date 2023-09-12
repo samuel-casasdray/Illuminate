@@ -7,6 +7,7 @@ from Type.Line import line
 from Type.Column import column
 from Type.Square import square
 import copy
+import guizero
 
 
 class Game:
@@ -58,12 +59,12 @@ class Game:
     def stopGame(self):
         self.levelInGoing = False
 
-    def startGame(self, app: customtkinter.CTkBaseClass):
+    def startGame(self, app: guizero.App):
         self.levelInGoing = True
         self.loop(app)
+        app.repeat(50, self.sendGrille, [app])
 
-    def sendGrille(self, app: customtkinter.CTkBaseClass, _time, timer):
-        if time.time() - timer > _time / 1000: return
+    def sendGrille(self, app: guizero.App):
         for i in range(0, SIZE[0]):
             for j in range(0, SIZE[1]):
                 n = -1
@@ -71,19 +72,17 @@ class Game:
                     if self.grilles[k] is not None and self.grilles[k][i][j] > n:
                         n = self.grilles[k][i][j]
                 self.func(i, j, n if n != -1 else 0)
-        app.after(50, self.sendGrille, app, _time, timer)
 
-    def loop(self, app: customtkinter.CTkBaseClass):
+    def loop(self, app: guizero.App):
         self.nbFuncDone = 0
         self.stepLevel += 1
         if self.stepLevel > self.maxStep:
             self.stepLevel = 1
         error = self.level["error"][str(self.stepLevel)]
         time1 = int(self.lunchFunc(app, error) * 1000)
-        self.sendGrille(app, time1, time.time())
-        app.after(time1, self.loop, app)
+        app.after(time1, self.loop, [app])
 
-    def lunchFunc(self, app: customtkinter.CTkBaseClass, func, isMulti=False, multi=0, time=0.0):
+    def lunchFunc(self, app: guizero.App, func, isMulti=False, multi=0, time=0.0):
         funcs = func.split("_")
         name = funcs[0]
         try: n = int(funcs[1])

@@ -1,2 +1,3 @@
 DELAY = 0.2
 SIZE = [10, 10]
+SIZEPLATE = [30, 30]
