@@ -54,7 +54,9 @@ class App(customtkinter.CTk):
         self.grille.grid(row=0, column=0)
         self.grille.loadGrille(self.game.grille)
         self.game.setFunc(self.grille.changeColor)
-        self.after(2000, self.game.startGame, self)
+        self.after(0, self.game.startGame, self)
+
+
 
 
 app = App()

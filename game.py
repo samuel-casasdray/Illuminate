@@ -71,7 +71,7 @@ class Game:
                     if self.grilles[k] is not None and self.grilles[k][i][j] > n:
                         n = self.grilles[k][i][j]
                 self.func(i, j, n if n != -1 else 0)
-        app.after(10, self.sendGrille, app, _time, timer)
+        app.after(50, self.sendGrille, app, _time, timer)
 
     def loop(self, app: customtkinter.CTkBaseClass):
         self.nbFuncDone = 0
