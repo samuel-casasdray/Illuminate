@@ -11,9 +11,10 @@ import guizero
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, update, changeColor):
         self.stepLevel = 0
-        self.func = None
+        self.changeColor = changeColor
+        self.updateGrille = update
         self.maxStep = 0
         self.level = None
         self.grille = []
@@ -62,16 +63,17 @@ class Game:
     def startGame(self, app: guizero.App):
         self.levelInGoing = True
         self.loop(app)
-        app.repeat(50, self.sendGrille, [app])
+        app.repeat(50, self.sendGrille)
 
-    def sendGrille(self, app: guizero.App):
+    def sendGrille(self):
         for i in range(0, SIZE[0]):
             for j in range(0, SIZE[1]):
                 n = -1
                 for k in range(0, self.nbFunc):
                     if self.grilles[k] is not None and self.grilles[k][i][j] > n:
                         n = self.grilles[k][i][j]
-                self.func(i, j, n if n != -1 else 0)
+                self.changeColor(i, j, n if n != -1 else 0)
+        self.updateGrille()
 
     def loop(self, app: guizero.App):
         self.nbFuncDone = 0
@@ -150,9 +152,6 @@ class Game:
                 if len(names) == 1: return 0
                 if names[0] == "time": return self.getNbFunc(names[2])
                 return self.getNbFunc(names[0])
-
-    def setFunc(self, func):
-        self.func = func
 
     def setGrilles(self):
         if len(self.grilles) != self.nbFunc:
