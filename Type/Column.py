@@ -1,7 +1,6 @@
 import time
 from variable import *
-import customtkinter
-import guizero
+from Static import Static
 
 
 def colAux(y, n, old, replaceGrille, nbFunc):
@@ -9,7 +8,7 @@ def colAux(y, n, old, replaceGrille, nbFunc):
         replaceGrille(i, y, n, old, nbFunc)
 
 
-def colStarter(app: guizero.App, n, old, left, i, step, timer, replaceGrille, nbFunc):
+def colStarter(name, n, old, left, i, step, timer, replaceGrille, nbFunc):
     if timer is None: timer = time.time()
     if (time.time() - timer) >= DELAY * (i if left else (SIZE[1] - 1 - i)):
         if i != (SIZE[1] if left else -1):
@@ -17,14 +16,15 @@ def colStarter(app: guizero.App, n, old, left, i, step, timer, replaceGrille, nb
                 colAux(i - step, old, n, replaceGrille, nbFunc)
             colAux(i, n, old, replaceGrille, nbFunc)
         i += step
+    Static.event.stop(name)
     if i == (SIZE[1] + 1 if left else -2):
         colAux(SIZE[1] - 1 if left else 0, old, n, replaceGrille, nbFunc)
         return
-    app.after(1, colStarter, [app, n, old, left, i, step, timer, replaceGrille, nbFunc])
+    Static.event.add(colStarter, 1, n, old, left, i, step, timer, replaceGrille, nbFunc)
     return
 
 
-def column(app: guizero.App, n, old, left, replaceGrille, nbFunc, wait=0):
-    app.after(int(wait * 1000), colStarter, app, n, old, left, 0 if left else SIZE[1] - 1, 1 if left else -1, None,
+def column(n, old, left, replaceGrille, nbFunc, wait=0):
+    Static.event.add(colStarter, int(wait * 1000), n, old, left, 0 if left else SIZE[1] - 1, 1 if left else -1, None,
               replaceGrille, nbFunc)
     return DELAY * SIZE[1] + wait

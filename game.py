@@ -1,20 +1,16 @@
 import json
-import time
-
-import customtkinter
 from variable import *
 from Type.Line import line
 from Type.Column import column
 from Type.Square import square
 import copy
-import guizero
-
+from Gui import Gui
+from Static import Static
 
 class Game:
-    def __init__(self, update, changeColor):
+    def __init__(self, gui: Gui):
         self.stepLevel = 0
-        self.changeColor = changeColor
-        self.updateGrille = update
+        self.gui = gui
         self.maxStep = 0
         self.level = None
         self.grille = []
@@ -60,31 +56,32 @@ class Game:
     def stopGame(self):
         self.levelInGoing = False
 
-    def startGame(self, app: guizero.App):
+    def startGame(self, event):
         self.levelInGoing = True
-        self.loop(app)
-        app.repeat(50, self.sendGrille)
+        self.loop(None)
+        Static.event.stop(event)
+        Static.event.add(self.sendGrille, 50)
 
-    def sendGrille(self):
+    def sendGrille(self, event):
         for i in range(0, SIZE[0]):
             for j in range(0, SIZE[1]):
                 n = -1
                 for k in range(0, self.nbFunc):
                     if self.grilles[k] is not None and self.grilles[k][i][j] > n:
                         n = self.grilles[k][i][j]
-                self.changeColor(i, j, n if n != -1 else 0)
-        self.updateGrille()
+                self.gui.changeColor(i, j, n if n != -1 else 0)
 
-    def loop(self, app: guizero.App):
+    def loop(self, event):
         self.nbFuncDone = 0
         self.stepLevel += 1
         if self.stepLevel > self.maxStep:
             self.stepLevel = 1
         error = self.level["error"][str(self.stepLevel)]
-        time1 = int(self.lunchFunc(app, error) * 1000)
-        app.after(time1, self.loop, [app])
+        time1 = int(self.lunchFunc(error) * 1000)
+        Static.event.stop(event)
+        Static.event.add(self.loop, time1)
 
-    def lunchFunc(self, app: guizero.App, func, isMulti=False, multi=0, time=0.0):
+    def lunchFunc(self, func: str, isMulti=False, multi=0, time=0.0):
         funcs = func.split("_")
         name = funcs[0]
         try: n = int(funcs[1])
@@ -97,21 +94,21 @@ class Game:
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                return line(app, n, old, top, self.replaceGrille, 0 + multi, time)
+                return line(n, old, top, self.replaceGrille, 0 + multi, time)
             case "column":
                 left = funcs[3] == "true"
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                return column(app, n, old, left, self.replaceGrille, 0 + multi, time)
+                return column(n, old, left, self.replaceGrille, 0 + multi, time)
             case "crossP":
                 top = funcs[3] == "true"
                 left = funcs[4] == "true"
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                time1 = line(app, n, old, top, self.replaceGrille, 0 + multi, time)
-                time2 = column(app, n, old, left, self.replaceGrille, 1 + multi, time)
+                time1 = line(n, old, top, self.replaceGrille, 0 + multi, time)
+                time2 = column(n, old, left, self.replaceGrille, 1 + multi, time)
                 return max(time1, time2)
             case "multi":
                 multiFuncs = "_".join(funcs[1:]).split("__")
@@ -121,22 +118,21 @@ class Game:
                 timeMin = float("inf")
                 timeMax = 0
                 for f in multiFuncs:
-                    time2 = self.lunchFunc(app, f, True, i, time)
+                    time2 = self.lunchFunc(f, True, i, time)
                     if time2 < timeMin: timeMin = time2
                     if time2 > timeMax: timeMax = time2
                     i += self.getNbFunc(f)
                 return timeMin if self.maxStep == 1 else timeMax
             case "time":
-                temp = self.lunchFunc(app, "_".join(funcs[2:]), isMulti, multi, float(funcs[1]))
+                temp = self.lunchFunc("_".join(funcs[2:]), isMulti, multi, float(funcs[1]))
                 return temp
             case "square":
                 x = int(funcs[3])
                 y = int(funcs[4])
-                print(x, y)
                 if not isMulti:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
-                return square(app, n, old, x, y, self.replaceGrille, 0 + multi, time)
+                return square(n, old, x, y, self.replaceGrille, 0 + multi, time)
             case _:
                 print("Erreur inconnu : ", func)
                 return 5
