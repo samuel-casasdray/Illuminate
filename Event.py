@@ -3,9 +3,13 @@ import pygame
 class Event:
     def __init__(self) -> None:
         self.events = [None for _ in range(0, 8)]
+        self.registerEvents = []
     
     def getName(self):
         return pygame.event.custom_type()
+
+    def registerEvent(self, func):
+        self.registerEvents.append(func)
 
     def add(self, func, ms, *args):
         for i in range(0, 8):
@@ -22,10 +26,23 @@ class Event:
                 pygame.time.set_timer(event, 0)
                 self.events[i] = None
 
+    def stopAll(self):
+        for i in range(0, 8):
+            if self.events[i] is not None:
+                pygame.time.set_timer(self.events[i][0], 0)
+                self.events[i] = None
+
     def inEvent(self):
         for i in range(0, 8):
             if self.events[i] is not None:
                 if pygame.event.get(self.events[i][0]):
                     self.events[i][1](self.events[i][0], *self.events[i][2])
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        for event in self.registerEvents:
+            event(events)
 
     

@@ -1,13 +1,13 @@
 from Game import Game
-from variable import *
-from Gui import Gui
+from UI.Gui import Gui
 from Static import Static
 
-class App():
+
+class App:
     def __init__(self):
-        self.gui = Gui()
-        self.game = Game(self.gui)
-        self.startLevel('1')
+        self.game = Game()
+        self.gui = Gui(self.startLevel, self.game.countNbLevel(), self.game.completeLevel)
+        self.game.setGui(self.gui)
         self.gui.run()
 
     def startLevel(self, level: str):

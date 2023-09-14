@@ -4,13 +4,14 @@ from Type.Line import line
 from Type.Column import column
 from Type.Square import square
 import copy
-from Gui import Gui
+from UI.Gui import Gui
 from Static import Static
 
+
 class Game:
-    def __init__(self, gui: Gui):
+    def __init__(self):
         self.stepLevel = 0
-        self.gui = gui
+        self.gui = None
         self.maxStep = 0
         self.level = None
         self.grille = []
@@ -21,6 +22,12 @@ class Game:
         self.levels = json.load(f)
         f.close()
         self.levelInGoing = False
+
+    def setGui(self, gui:Gui):
+        self.gui = gui
+
+    def countNbLevel(self):
+        return len(self.levels)
 
     def resetGrille(self):
         self.grille = []
@@ -84,10 +91,14 @@ class Game:
     def lunchFunc(self, func: str, isMulti=False, multi=0, time=0.0):
         funcs = func.split("_")
         name = funcs[0]
-        try: n = int(funcs[1])
-        except ValueError: n = 0
-        try: old = int(funcs[2])
-        except ValueError: old = 0
+        try:
+            n = int(funcs[1])
+        except ValueError:
+            n = 0
+        try:
+            old = int(funcs[2])
+        except ValueError:
+            old = 0
         match name:
             case "line":
                 top = funcs[3] == "true"
@@ -160,6 +171,11 @@ class Game:
         if self.grilles[i][x][y] == old:
             self.grilles[i][x][y] = n
 
+    def completeLevel(self):
+        self.grilles = [[[3 for _ in range(0, SIZE[1])] for _ in range(0, SIZE[0])] for _ in range(0, self.nbFunc)]
+        self.sendGrille(None)
+        Static.event.stopAll()
+        self.grilles = [None for _ in range(0, self.nbFunc)]
 
     def diagR(self):
         pass
@@ -179,5 +195,5 @@ class Game:
     def square(self):
         pass
 
-    def snake(self):
+    def star(self):
         pass
