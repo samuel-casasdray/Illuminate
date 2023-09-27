@@ -5,11 +5,12 @@ from Static import Static
 from UI.Element.RadioButton import RadioButton
 from UI.Element.Button import Button
 
+
 class Gui(threading.Thread):
-    def __init__(self, startLevel, nbLevel, completeLevel):
+    def __init__(self, startLevel, nbLevel, completeLevelFunc):
         pygame.init()
         threading.Thread.__init__(self)
-        self.completeLevel = completeLevel
+        self.completeLevelFunc = completeLevelFunc
         self.widthGrille = SIZE[0] * SIZEPLATE[0]
         self.heightGrille = SIZE[1] * SIZEPLATE[1]
         self.width = self.widthGrille + 350
@@ -23,23 +24,27 @@ class Gui(threading.Thread):
                 row.append(0)
             self.plates.append(row)
         self.isRunning = False
+        self.isComplete = False
 
-        font = pygame.font.SysFont(None, 25)
+        self.font = pygame.font.SysFont("comicsansms", 20)
 
         self.radioButtons = [
-            RadioButton(self.widthGrille + 50, 40 * (i + 1), 100, 30, font, "Level " + str(i + 1))
+            RadioButton(self.widthGrille + 50, 40 * (i + 1), 100, 30, self.font, "Level " + str(i + 1))
             for i in range(0, nbLevel)
         ]
         for radioButtons in self.radioButtons:
             radioButtons.setRadioButtons(self.radioButtons)
         self.radioButtons[0].clicked = True
 
-        buttonPlay = Button(self.widthGrille + 200, 40, 100, 30, font, "Play", lambda: self.startLevel(startLevel))
-        buttonStop = Button(self.widthGrille + 200, 80, 100, 30, font, "Stop", self.stopLevel)
-        buttonComplete = Button(self.widthGrille + 200, 120, 100, 30, font, "Complete", self.completeLevel)
+        buttonPlay = Button(self.widthGrille + 200, 40, 100, 30, self.font, "Play", lambda: self.startLevel(startLevel))
+        buttonStop = Button(self.widthGrille + 200, 80, 100, 30, self.font, "Stop", self.stopLevel)
+        buttonComplete = Button(self.widthGrille + 200, 120, 100, 30, self.font, "Complete", self.completeLevel)
 
         self.group = pygame.sprite.Group(self.radioButtons, buttonPlay, buttonStop, buttonComplete)
         Static.event.registerEvent(self.group.update)
+        self.start_time = None
+        self.time_hms = 0, 0, 0, 0
+        self.timer_surf = self.font.render(self.renderTimer(), True, (255, 255, 255))
 
     def startLevel(self, func):
         level = "1"
@@ -47,13 +52,16 @@ class Gui(threading.Thread):
             if radio.clicked:
                 level = radio.text[6:]
                 break
+        self.start_time = pygame.time.get_ticks()
+        self.isComplete = False
         func(level)
 
     def stopLevel(self):
         Static.event.stopAll()
+        self.isComplete = True
 
     def completeLevel(self):
-        self.completeLevel()
+        self.completeLevelFunc()
         self.stopLevel()
 
     def run(self):
@@ -87,4 +95,14 @@ class Gui(threading.Thread):
             Static.event.inEvent()
             self.group.draw(self.screen)
             self.draw()
+            time_ms = (pygame.time.get_ticks() - self.start_time) if self.start_time is not None else 0
+            new_hms = (time_ms // (1000 * 60 * 60)) % 24, (time_ms // (1000 * 60)) % 60, (time_ms // 1000) % 60, (
+                time_ms) % 1000
+            if new_hms != self.time_hms and not self.isComplete:
+                self.time_hms = new_hms
+                self.timer_surf = self.font.render(self.renderTimer(), True, (255, 255, 255))
+            self.screen.blit(self.timer_surf, (self.widthGrille + 50, 10))
             pygame.display.flip()
+
+    def renderTimer(self):
+        return f'{self.time_hms[0]:02d}:{self.time_hms[1]:02d}:{self.time_hms[2]:02d}:{self.time_hms[3]:03d}'

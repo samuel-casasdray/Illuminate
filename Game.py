@@ -192,8 +192,11 @@ class Game:
     def circle(self):
         pass
 
-    def square(self):
+    def snake(self):
         pass
 
     def star(self):
+        pass
+
+    def bounce(self):
         pass
