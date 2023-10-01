@@ -3,6 +3,9 @@ from variable import *
 from Type.Line import line
 from Type.Column import column
 from Type.Square import square
+from Type.Diagonal import diagonal
+from Type.Random import random
+from Type.Spread import spread
 import copy
 from UI.Gui import Gui
 from Static import Static
@@ -66,7 +69,6 @@ class Game:
     def startGame(self, event):
         self.levelInGoing = True
         self.loop(None)
-        Static.event.stop(event)
         Static.event.add(self.sendGrille, 50)
 
     def sendGrille(self, event):
@@ -77,6 +79,7 @@ class Game:
                     if self.grilles[k] is not None and self.grilles[k][i][j] > n:
                         n = self.grilles[k][i][j]
                 self.gui.changeColor(i, j, n if n != -1 else 0)
+        Static.event.add(self.sendGrille, 50)
 
     def loop(self, event):
         self.nbFuncDone = 0
@@ -85,7 +88,6 @@ class Game:
             self.stepLevel = 1
         error = self.level["error"][str(self.stepLevel)]
         time1 = int(self.lunchFunc(error) * 1000)
-        Static.event.stop(event)
         Static.event.add(self.loop, time1)
 
     def lunchFunc(self, func: str, isMulti=False, multi=0, time=0.0):
@@ -144,13 +146,30 @@ class Game:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
                 return square(n, old, x, y, self.replaceGrille, 0 + multi, time)
+            case "diag":
+                top = funcs[3] == "true"
+                left = funcs[4] == "true"
+                if not isMulti:
+                    self.nbFunc = self.getNbFunc(name)
+                    self.setGrilles()
+                return diagonal(n, old, top, left, self.replaceGrille, 0 + multi, time)
+            case "random":
+                if not isMulti:
+                    self.nbFunc = self.getNbFunc(name)
+                    self.setGrilles()
+                return random(n, old, self.replaceGrille, 0+multi, time)
+            case "spread":
+                if not isMulti:
+                    self.nbFunc = self.getNbFunc(name)
+                    self.setGrilles()
+                return spread(n, old, self.replaceGrille, 0+multi, time)
             case _:
                 print("Erreur inconnu : ", func)
                 return 5
 
     def getNbFunc(self, name):
         match name:
-            case "line" | "column" | "square":
+            case "line" | "column" | "square" | "diag" | "random" | "spread":
                 return 1
             case "crossP":
                 return 2
@@ -176,12 +195,6 @@ class Game:
         self.sendGrille(None)
         Static.event.stopAll()
         self.grilles = [None for _ in range(0, self.nbFunc)]
-
-    def diagR(self):
-        pass
-
-    def diagC(self):
-        pass
 
     def fill(self):
         pass

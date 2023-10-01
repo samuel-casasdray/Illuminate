@@ -1,42 +1,34 @@
+from time import time
 import pygame
 
 class Event:
     def __init__(self) -> None:
-        self.events = [None for _ in range(0, 8)]
+        self.events = []
         self.registerEvents = []
-    
-    def getName(self):
-        return pygame.event.custom_type()
 
     def registerEvent(self, func):
         self.registerEvents.append(func)
 
     def add(self, func, ms, *args):
-        for i in range(0, 8):
-            if self.events[i] is None:
-                event = pygame.event.custom_type()
-                pygame.time.set_timer(event, 1 if ms == 0 else int(ms))
-                self.events[i] = (event, func, args)
-                return True
-        return False
+        self.events.append((len(self.events), func, 1 if ms == 0 else ms, time(), args))
+        return len(self.events) - 1
 
     def stop(self, event):
-        for i in range(0, 8):
-            if self.events[i] is not None and self.events[i][0] == event:
-                pygame.time.set_timer(event, 0)
-                self.events[i] = None
+        del self.events[event]
 
     def stopAll(self):
-        for i in range(0, 8):
-            if self.events[i] is not None:
-                pygame.time.set_timer(self.events[i][0], 0)
-                self.events[i] = None
+        self.events = []
 
     def inEvent(self):
-        for i in range(0, 8):
-            if self.events[i] is not None:
-                if pygame.event.get(self.events[i][0]):
-                    self.events[i][1](self.events[i][0], *self.events[i][2])
+        indexs = []
+        for i in range(len(self.events)):
+            event = self.events[i]
+            if (time() - event[3]) * 1000 >= event[2]:
+                event[1](event[0], *event[4])
+                indexs.append(i)
+        indexs.sort(reverse=True)
+        for i in indexs:
+            del self.events[i]
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:

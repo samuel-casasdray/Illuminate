@@ -16,7 +16,6 @@ def lineStarter(name, n, old, top, i, step, timer, replaceGrille, nbFunc):
                 lineAux(i - step, old, n, replaceGrille, nbFunc)
             lineAux(i, n, old, replaceGrille, nbFunc)
         i += step
-    Static.event.stop(name)
     if i == (SIZE[0] + 1 if top else -2):
         lineAux(SIZE[0] - 1 if top else 0, old, n, replaceGrille, nbFunc)
         return

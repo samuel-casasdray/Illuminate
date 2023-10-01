@@ -16,7 +16,6 @@ def colStarter(name, n, old, left, i, step, timer, replaceGrille, nbFunc):
                 colAux(i - step, old, n, replaceGrille, nbFunc)
             colAux(i, n, old, replaceGrille, nbFunc)
         i += step
-    Static.event.stop(name)
     if i == (SIZE[1] + 1 if left else -2):
         colAux(SIZE[1] - 1 if left else 0, old, n, replaceGrille, nbFunc)
         return

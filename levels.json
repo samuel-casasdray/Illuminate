@@ -70,7 +70,7 @@
             "4": []
         },
         "error": {
-            "1": "multi_time_0.4_square_1_0_2_2__square_1_0_6_3__time_1_square_1_0_3_7"
+            "1": "spread_1_0"
         }
     },
     "2": {
@@ -155,7 +155,11 @@
             "9": "multi_crossP_1_0_true_true__crossP_1_0_true_false",
             "10": "multi_crossP_1_0_true_true__crossP_1_0_false_false",
             "11": "time_3_line_1_0_true",
-            "12": "multi_line_1_0_true__line_1_0_true__time_1_line_1_0_true"
+            "12": "multi_time_0.4_square_1_0_2_2__square_1_0_6_3__time_1_square_1_0_3_7",
+            "13": "diag_1_0_true_false",
+            "14": "diag_1_0_true_true",
+            "15": "diag_1_0_false_false",
+            "16": "diag_1_0_false_true"
         }
     }
 }
