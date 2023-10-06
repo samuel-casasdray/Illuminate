@@ -33,8 +33,9 @@ def squareStarter(name, n, old, x, y, i, timer, replaceGrille, nbFunc):
                         replaceGrille(x - i, j, n, old, nbFunc)
                     if 0 <= x + i < SIZE[0]:
                         replaceGrille(x + i, j, n, old, nbFunc)
-        if x - i < 0 and x + i >= SIZE[0] and y - i < 0 and y + i >= SIZE[1]: return
-        Static.event.add(squareStarter, 1, n, old, x, y, i + 1, timer, replaceGrille, nbFunc)
+        i += 1
+    if x - (i - 1) < 0 and x + (i - 1) >= SIZE[0] and y - (i - 1) < 0 and y + (i - 1) >= SIZE[1]: return
+    Static.event.add(squareStarter, 1, n, old, x, y, i, timer, replaceGrille, nbFunc)
 
 
 def square(n, old, x, y, replaceGrille, nbFunc, wait=0):
