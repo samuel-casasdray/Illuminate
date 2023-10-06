@@ -6,6 +6,7 @@ from Type.Square import square
 from Type.Diagonal import diagonal
 from Type.Random import random
 from Type.Spread import spread
+from Type.Circle import circle
 import copy
 from UI.Gui import Gui
 from Static import Static
@@ -163,13 +164,20 @@ class Game:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
                 return spread(n, old, self.replaceGrille, 0+multi, time)
+            case "circle":
+                x = int(funcs[3])
+                y = int(funcs[4])
+                if not isMulti:
+                    self.nbFunc = self.getNbFunc(name)
+                    self.setGrilles()
+                return circle(n, old, x, y, self.replaceGrille, 0 + multi, time)
             case _:
                 print("Erreur inconnu : ", func)
                 return 5
 
     def getNbFunc(self, name):
         match name:
-            case "line" | "column" | "square" | "diag" | "random" | "spread":
+            case "line" | "column" | "square" | "diag" | "random" | "spread" | "circle":
                 return 1
             case "crossP":
                 return 2
@@ -197,12 +205,6 @@ class Game:
         self.grilles = [None for _ in range(0, self.nbFunc)]
 
     def fill(self):
-        pass
-
-    def crossT(self):
-        pass
-
-    def circle(self):
         pass
 
     def snake(self):
