@@ -52,6 +52,3 @@ def circle(n, old, x, y, replaceGrille, nbFunc, wait=0):
                 on = True
                 break
     return (i + 1) * DELAY + wait
-
-def pixel(x, y, p, q):
-    return [(x+p, y+q), (x+p, y-q), (x-p, y+q), (x-p, y-q), (x+q, y+p), (x+q, y-p), (x-q, y+p), (x-q, y-p)]

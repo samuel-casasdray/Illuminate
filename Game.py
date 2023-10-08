@@ -7,6 +7,7 @@ from Type.Diagonal import diagonal
 from Type.Random import random
 from Type.Spread import spread
 from Type.Circle import circle
+from Type.Bounce import bounce
 import copy
 from UI.Gui import Gui
 from Static import Static
@@ -171,13 +172,23 @@ class Game:
                     self.nbFunc = self.getNbFunc(name)
                     self.setGrilles()
                 return circle(n, old, x, y, self.replaceGrille, 0 + multi, time)
+            case "bounce":
+                x = int(funcs[3])
+                y = int(funcs[4])
+                size = int(funcs[5])
+                angle = int(funcs[6])
+                bounceN = int(funcs[7])
+                if not isMulti:
+                    self.nbFunc = self.getNbFunc(name)
+                    self.setGrilles()
+                return bounce(n, old, x, y, size, angle, bounceN, self.replaceGrille, 0+multi, time)
             case _:
                 print("Erreur inconnu : ", func)
                 return 5
 
     def getNbFunc(self, name):
         match name:
-            case "line" | "column" | "square" | "diag" | "random" | "spread" | "circle":
+            case "line" | "column" | "square" | "diag" | "random" | "spread" | "circle" | "bounce":
                 return 1
             case "crossP":
                 return 2
